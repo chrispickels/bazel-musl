@@ -500,7 +500,7 @@ bool OutputJar::AddJar(int jar_path_index) {
     //  local header
     //  file data
     //  data descriptor, if present.
-    off64_t copy_from = jar_entry->local_header_offset();
+    off_t copy_from = jar_entry->local_header_offset();
     size_t num_bytes = lh->size();
     if (jar_entry->no_size_in_local_header()) {
       const DDR *ddr = reinterpret_cast<const DDR *>(
@@ -513,7 +513,7 @@ bool OutputJar::AddJar(int jar_path_index) {
     } else {
       num_bytes += lh->compressed_file_size();
     }
-    off64_t local_header_offset = Position();
+    off_t local_header_offset = Position();
 
     // When normalize_timestamps is set, entry's timestamp is to be set to
     // 01/01/2010 00:00:00 (or to 01/01/2010 00:00:02, if an entry is a .class
@@ -583,7 +583,7 @@ bool OutputJar::AddJar(int jar_path_index) {
   return input_jar.Close();
 }
 
-off64_t OutputJar::Position() {
+off_t OutputJar::Position() {
   if (file_ == nullptr) {
     diag_err(1, "%s:%d: output file is not open", __FILE__, __LINE__);
   }
@@ -635,7 +635,7 @@ void OutputJar::WriteEntry(void *buffer) {
   }
 
   uint8_t *data = reinterpret_cast<uint8_t *>(entry);
-  off64_t output_position = Position();
+  off_t output_position = Position();
   if (!WriteBytes(data, entry->data() + entry->in_zip_size() - data)) {
     diag_err(1, "%s:%d: write", __FILE__, __LINE__);
   }
@@ -720,7 +720,7 @@ void OutputJar::WriteDirEntry(const std::string &name,
 }
 
 // Create output Central Directory entry for the input jar entry.
-void OutputJar::AppendToDirectoryBuffer(const CDH *cdh, off64_t lh_pos,
+void OutputJar::AppendToDirectoryBuffer(const CDH *cdh, off_t lh_pos,
                                         uint16_t normalized_time,
                                         bool fix_timestamp) {
   // While copying from the input CDH pointed to by 'cdh', we may need to drop
@@ -861,7 +861,7 @@ bool OutputJar::Close() {
   WriteEntry(spring_schemas_.OutputEntry(options_->force_compression));
   WriteEntry(protobuf_meta_handler_.OutputEntry(options_->force_compression));
   // TODO(asmundak): handle manifest;
-  off64_t output_position = Position();
+  off_t output_position = Position();
   bool write_zip64_ecd = output_position >= 0xFFFFFFFF || entries_ >= 0xFFFF ||
                          cen_size_ >= 0xFFFFFFFF;
 
@@ -967,7 +967,7 @@ void OutputJar::ClasspathResource(const std::string &resource_name,
   }
 }
 
-ssize_t OutputJar::CopyAppendData(int in_fd, off64_t offset, size_t count) {
+ssize_t OutputJar::CopyAppendData(int in_fd, off_t offset, size_t count) {
   if (count == 0) {
     return 0;
   }
@@ -1038,10 +1038,10 @@ size_t OutputJar::AppendFile(Options *options, const char *const file_path) {
   return statbuf.st_size;
 }
 
-off64_t OutputJar::PageAlignedAppendFile(const std::string &file_path,
+off_t OutputJar::PageAlignedAppendFile(const std::string &file_path,
                                          size_t *file_size) {
   // Align the file start offset at page boundary.
-  off64_t cur_offset = Position();
+  off_t cur_offset = Position();
   size_t pagesize;
 #ifdef _WIN32
   SYSTEM_INFO si;
@@ -1050,7 +1050,7 @@ off64_t OutputJar::PageAlignedAppendFile(const std::string &file_path,
 #else
   pagesize = sysconf(_SC_PAGESIZE);
 #endif
-  off64_t aligned_offset = (cur_offset + (pagesize - 1)) & ~(pagesize - 1);
+  off_t aligned_offset = (cur_offset + (pagesize - 1)) & ~(pagesize - 1);
   size_t gap = aligned_offset - cur_offset;
   size_t written;
   if (gap > 0) {
@@ -1078,7 +1078,7 @@ void OutputJar::AppendPageAlignedFile(
   // Align the shared archive start offset at page alignment, which is
   // required by mmap.
   size_t file_size;
-  off64_t aligned_offset = OutputJar::PageAlignedAppendFile(file, &file_size);
+  off_t aligned_offset = OutputJar::PageAlignedAppendFile(file, &file_size);
 
   // Write the start offset of the copied content as a manifest attribute.
   char offset_manifest_attr[50];

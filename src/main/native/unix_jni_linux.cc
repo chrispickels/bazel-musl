@@ -45,7 +45,7 @@ std::string ErrorMessage(int error_number) {
 
 int portable_fstatat(
     int dirfd, char *name, portable_stat_struct *statbuf, int flags) {
-  return fstatat64(dirfd, name, statbuf, flags);
+  return fstatat(dirfd, name, statbuf, flags);
 }
 
 uint64_t StatEpochMilliseconds(const portable_stat_struct &statbuf,

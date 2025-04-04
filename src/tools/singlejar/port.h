@@ -28,28 +28,11 @@
 #include <sys/types.h>
 #include <time.h>
 
-#if defined(__APPLE__)
-typedef off_t off64_t;
-#elif defined(_WIN32)
-typedef __int64 off64_t;
-#elif defined(__OpenBSD__)
-typedef int64_t off64_t;
-#endif
-static_assert(sizeof(off64_t) == 8, "File offset type must be 64-bit");
+static_assert(sizeof(off_t) == 8, "File offset type must be 64-bit");
 
 #ifdef _WIN32
 
 #define F_OK 0
-
-#ifdef _WIN64
-// MSVC by default defines stat and related functions to a version with 32-bit
-// st_size even for Win64. We want 64-bit st_size instead so that we can handle
-// large file.
-#undef stat
-#undef fstat
-#define stat _stat64
-#define fstat _fstat64
-#endif  // _WIN64
 
 typedef ptrdiff_t ssize_t;
 

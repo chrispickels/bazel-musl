@@ -51,10 +51,10 @@ class MappedFile {
 
   const unsigned char *start() const { return mapped_start_; }
   const unsigned char *end() const { return mapped_end_; }
-  const unsigned char *address(off64_t offset) const {
+  const unsigned char *address(off_t offset) const {
     return mapped_start_ + offset;
   }
-  off64_t offset(const void *address) const {
+  off_t offset(const void *address) const {
     return reinterpret_cast<const unsigned char *>(address) - mapped_start_;
   }
 
